@@ -1,19 +1,19 @@
 ---
 name: xiaoyuzhou-to-lark-doc
-description: Convert public Xiaoyuzhou episode links or direct podcast audio links into Lark documents with transcript, corrected ASR text, summary, outline, and source metadata. Use when the user asks to process 小宇宙, xiaoyuzhoufm.com, podcast episode links, podcast audio extraction, ASR transcription, 飞书妙记, or generating a 飞书文档 from a podcast.
+description: 将公开的小宇宙单集链接或播客音频直链转换成飞书文档，文档包含逐字稿、校对后的 ASR 原文、摘要、分段大纲和来源信息。用户要求处理小宇宙、xiaoyuzhoufm.com、播客链接、提取播客音频、ASR 转写、飞书妙记，或把播客生成飞书文档时使用。
 ---
 
-# Xiaoyuzhou To Lark Doc
+# 小宇宙转飞书文档
 
-Use this skill to turn a public Xiaoyuzhou episode into a Lark document. The bundled script resolves the audio URL, downloads the media, uploads it to Lark Drive, creates a Lark Minutes record, reads transcript/artifacts, and creates a Lark document with metadata, summary, outline, and corrected ASR text.
+使用这个 skill 将公开的小宇宙单集转换成飞书文档。内置脚本会解析音频地址，下载音频，上传到飞书云空间，生成飞书妙记，读取逐字稿和 AI 产物，并创建包含节目元信息、摘要、分段大纲和校对后 ASR 原文的飞书文档。
 
-## Primary Workflow
+## 主要流程
 
-1. Use the bundled script unless the user explicitly asks for a different implementation.
-2. Run from a writable working directory.
-3. Pass the user-provided Xiaoyuzhou episode URL as the first argument.
-4. Use `--workdir` for per-episode output. Prefer a stable folder name based on the episode id.
-5. If a previous run already generated a Lark Minutes token, use `--minute-token` or `--minute-url` to skip download/upload.
+1. 默认使用内置脚本，除非用户明确要求采用其他实现。
+2. 在一个可写目录中运行脚本。
+3. 将用户提供的小宇宙单集链接作为第一个参数传入。
+4. 使用 `--workdir` 保存单集相关的中间文件。目录名优先使用 episode id。
+5. 如果之前已经生成过飞书妙记，使用 `--minute-token` 或 `--minute-url` 跳过下载、上传和生成妙记。
 
 ```bash
 python3 ~/.codex/skills/xiaoyuzhou-to-lark-doc/scripts/xiaoyuzhou_to_lark_doc.py \
@@ -21,7 +21,7 @@ python3 ~/.codex/skills/xiaoyuzhou-to-lark-doc/scripts/xiaoyuzhou_to_lark_doc.py
   --workdir ./runs/<episode-id>
 ```
 
-To reuse an existing Lark Minutes record:
+复用已生成的飞书妙记：
 
 ```bash
 python3 ~/.codex/skills/xiaoyuzhou-to-lark-doc/scripts/xiaoyuzhou_to_lark_doc.py \
@@ -30,41 +30,41 @@ python3 ~/.codex/skills/xiaoyuzhou-to-lark-doc/scripts/xiaoyuzhou_to_lark_doc.py
   --workdir ./runs/<episode-id>
 ```
 
-## Inputs
+## 输入
 
-- Required: Xiaoyuzhou episode URL, direct audio URL, or another public podcast episode URL that exposes audio metadata.
-- Optional `--rss`: RSS feed URL for fallback matching when page parsing cannot find audio.
-- Optional `--glossary`: correction file for ASR cleanup. Supported formats: `wrong=>right`, `wrong=right`, JSON object, or JSON array of `{ "from": "...", "to": "..." }`.
-- Optional `--parent-token` or `--parent-position`: target Lark document location.
-- Optional `--insecure`: only use when local Python certificate validation fails for public Xiaoyuzhou HTTPS requests.
+- 必填：小宇宙单集链接、音频直链，或其他能暴露音频元数据的公开播客单集链接。
+- 可选 `--rss`：页面解析不到音频时，用 RSS 链接回退匹配单集。
+- 可选 `--glossary`：ASR 术语/错词修正表，支持 `错词=>正确词`、`错词=正确词`、JSON 对象，或 `{ "from": "...", "to": "..." }` 数组。
+- 可选 `--parent-token` 或 `--parent-position`：指定飞书文档创建位置。
+- 可选 `--insecure`：仅在本机 Python 证书链无法校验公开小宇宙 HTTPS 请求时使用。
 
-## Lark Requirements
+## 飞书要求
 
-The script relies on `lark-cli` and user identity. If scopes are missing, follow the CLI hint and use split-flow auth when acting as the agent.
+脚本依赖 `lark-cli` 和用户身份。如果缺少 scope，按照 CLI 提示补授权；作为 agent 操作时使用分段授权流程。
 
-Common required scopes include:
+常见必需权限：
 
 ```bash
 lark-cli auth login --scope "minutes:minutes:readonly minutes:minutes.artifacts:read"
 ```
 
-If `vc +notes` returns `authorization` / `missing_scope`, do not keep polling. Ask the user to complete authorization, then rerun with `--minute-token` to avoid re-uploading the audio.
+如果 `vc +notes` 返回 `authorization` / `missing_scope`，不要继续轮询。请用户完成授权后，再用 `--minute-token` 复用已生成的妙记，避免重复上传音频。
 
-The script checks these scopes before download/upload by default. Do not pass `--skip-auth-check` unless the user explicitly wants to create only the native Lark Minutes record or is debugging permissions.
+脚本默认会在下载和上传前检查这些 scope。除非用户明确只想生成飞书原生妙记，或正在调试权限问题，否则不要传 `--skip-auth-check`。
 
-## Behavior Notes
+## 行为说明
 
-- Respect copyright and access boundaries. Process only public episodes or audio the user has rights to use. Do not bypass paywalls, login restrictions, or private media controls.
-- The first Lark document the user receives may be the native Lark Minutes document. The script may still need to read artifacts and create a second curated document.
-- Long transcripts are appended in chunks via `docs +update append`, so do not rewrite the script to create one huge document payload.
-- The script writes a `state.json` with `minute_url`, `minute_token`, and `file_token` after creating a minute. Reuse it after failures.
+- 尊重版权和访问边界。只处理公开单集或用户有权处理的音频。不要绕过付费、登录限制或私有媒体权限。
+- 用户先收到的飞书文档可能是飞书妙记自动生成的原生文档。脚本后续还会读取 artifacts，并创建一份整理后的文档。
+- 长逐字稿会通过 `docs +update append` 分块追加，不要改成一次性创建超长文档。
+- 脚本创建妙记后会写入 `state.json`，其中包含 `minute_url`、`minute_token` 和 `file_token`。失败后优先复用这些信息。
 
-## Validation
+## 校验
 
-After changing the bundled script, run:
+修改内置脚本后，运行：
 
 ```bash
 python3 -m py_compile ~/.codex/skills/xiaoyuzhou-to-lark-doc/scripts/xiaoyuzhou_to_lark_doc.py
 ```
 
-For parser and regression tests, run the test suite from the development repository when available.
+如果有开发仓库，可以在开发仓库中运行解析和回归测试。
