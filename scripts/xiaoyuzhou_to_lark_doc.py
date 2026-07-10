@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert a public Xiaoyuzhou episode URL into a Lark document."""
+"""将公开的小宇宙单集链接转换成飞书文档。"""
 
 from __future__ import annotations
 
@@ -178,7 +178,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def parse_args(argv: list[str] | None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Convert a Xiaoyuzhou episode into a Lark document.")
+    parser = argparse.ArgumentParser(description="将小宇宙单集转换成飞书文档。")
     parser.add_argument("url", help="小宇宙单集链接、RSS 单集链接，或音频直链")
     parser.add_argument("--rss", help="可选 RSS 链接，用于页面解析失败时回退")
     parser.add_argument("--glossary", type=Path, help="术语/错词修正表")
