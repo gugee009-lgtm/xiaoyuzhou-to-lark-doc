@@ -1,0 +1,4 @@
+interface:
+  display_name: "小宇宙转飞书文档"
+  short_description: "Turn Xiaoyuzhou episodes into Lark ASR docs"
+  default_prompt: "Use $xiaoyuzhou-to-lark-doc to turn this Xiaoyuzhou episode link into a Lark document."
