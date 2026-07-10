@@ -4,6 +4,8 @@
 
 内置脚本会解析单集音频地址，下载音频，上传到飞书云空间，生成飞书妙记，读取逐字稿和 AI 产物，最后创建一份包含节目元信息、摘要、分段大纲和校对后 ASR 原文的飞书文档。
 
+仓库地址：[https://github.com/GOUGOUW09/xiaoyuzhou-to-lark-doc](https://github.com/GOUGOUW09/xiaoyuzhou-to-lark-doc)
+
 ## 安装
 
 把这个文件夹复制到 Codex 的 skills 目录：
